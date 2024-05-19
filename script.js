@@ -33,11 +33,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             updateStats();
         });
 
-        document.getElementById('claim-user-dividends').addEventListener('click', async () => {
-            await contract.methods.claimUserDividends().send({ from: userAccount });
-            updateStats();
-        });
-
         async function updateStats() {
             const totalDeposits = await contract.methods.totalDeposits().call();
             const totalTreasuryPool = await contract.methods.totalTreasuryPool().call();
@@ -45,10 +40,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const lastDividendsPaymentTime = await contract.methods.lastDividendsPaymentTime().call();
             const contractBalance = await contract.methods.getContractBalance().call();
 
-            const user = await contract.methods.users(userAccount).call();
+                        const user = await contract.methods.users(userAccount).call();
             const userDeposits = user.deposits;
             const userWithdrawals = user.withdrawn;
-            const userDividendsToday = await contract.methods.getDividendsToday().call(); // Actualiza los dividendos acumulados hoy
             const userTotalDividends = user.dividendsClaimed;
             const userCurrentDeposit = parseInt(userDeposits) - parseInt(userWithdrawals);
 
@@ -60,50 +54,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('contract-balance').innerText = web3.utils.fromWei(contractBalance, 'ether');
             document.getElementById('user-deposits').innerText = web3.utils.fromWei(userDeposits, 'ether');
             document.getElementById('user-withdrawals').innerText = web3.utils.fromWei(userWithdrawals, 'ether');
-            document.getElementById('user-dividends-today').innerText = web3.utils.fromWei(userDividendsToday, 'ether');
-            document.getElementById('user-current-deposit').innerText = web3.utils.fromWei(userCurrentDeposit.toString(), 'ether');
             document.getElementById('user-total-dividends').innerText = web3.utils.fromWei(userTotalDividends, 'ether');
+            document.getElementById('user-current-deposit').innerText = web3.utils.fromWei(userCurrentDeposit.toString(), 'ether');
         }
     } else {
         alert('Por favor, instala MetaMask para utilizar esta aplicación.');
     }
 });
-
-function calcularTiempoRestanteParaPago() {
-    const ahora = new Date();
-    const horaActualUTC = ahora.getUTCHours();
-    const minutosActualesUTC = ahora.getUTCMinutes();
-    const segundosActualesUTC = ahora.getUTCSeconds();
-    let horasRestantes = 20 - horaActualUTC;
-    let minutosRestantes = 0;
-    let segundosRestantes = 0;
-
-    if (horaActualUTC >= 20) {
-        horasRestantes = 24 - (horaActualUTC - 20);
-    }
-
-    if (minutosActualesUTC > 0 || segundosActualesUTC > 0) {
-        horasRestantes--;
-        minutosRestantes = 60 - minutosActualesUTC;
-        segundosRestantes = 60 - segundosActualesUTC;
-    }
-
-    return {
-        horas: horasRestantes,
-        minutos: minutosRestantes,
-        segundos: segundosRestantes
-    };
-}
-
-function actualizarContador() {
-    const contador = document.getElementById('countdown-timer');
-    const tiempoRestante = calcularTiempoRestanteParaPago();
-    contador.textContent = `${tiempoRestante.horas}h ${tiempoRestante.minutos}m ${tiempoRestante.segundos}s`;
-}
-
-function inicializarContador() {
-    setInterval(actualizarContador, 1000);
-}
-
-inicializarContador();
 
